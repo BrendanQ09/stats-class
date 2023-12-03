@@ -15,50 +15,50 @@ from sklearn.preprocessing import StandardScaler
 
 # In[2]:
 
-
-df_customers = pd.read_csv('olist_customers_dataset.csv')
+#read document from csv saved in documents folder 
+df_customers = pd.read_csv('D:\\Users\\Owner\\Documents\\stats\\olist_customers_dataset.csv')
 
 
 # In[3]:
 
 
-df_order_items = pd.read_csv('olist_order_items_dataset.csv')
+df_order_items = pd.read_csv('D:\\Users\\Owner\\Documents\\stats\\olist_order_items_dataset.csv')
 
 
 # In[4]:
 
 
-df_order_payments = pd.read_csv('olist_order_payments_dataset.csv')
+df_order_payments = pd.read_csv('D:\\Users\\Owner\\Documents\\stats\\olist_order_payments_dataset.csv')
 
 
 # In[5]:
 
 
-df_order_reviews = pd.read_csv('olist_order_reviews_dataset.csv')
+df_order_reviews = pd.read_csv('D:\\Users\\Owner\\Documents\\stats\\olist_order_reviews_dataset.csv')
 
 
 # In[6]:
 
 
-df_orders = pd.read_csv('olist_orders_dataset.csv')
+df_orders = pd.read_csv('D:\\Users\\Owner\\Documents\\stats\\olist_orders_dataset.csv')
 
 
 # In[7]:
 
 
-df_products = pd.read_csv('olist_products_dataset.csv')
+df_products = pd.read_csv('D:\\Users\\Owner\\Documents\\stats\\olist_products_dataset.csv')
 
 
 # In[8]:
 
 
-df_sellers = pd.read_csv('olist_sellers_dataset.csv')
+df_sellers = pd.read_csv('D:\\Users\\Owner\\Documents\\stats\\olist_sellers_dataset.csv')
 
 
 # In[9]:
 
 
-df_category_name = pd.read_csv('product_category_name_translation.csv')
+df_category_name = pd.read_csv('D:\\Users\\Owner\\Documents\\stats\\product_category_name_translation.csv')
 
 
 # In[10]:
@@ -105,6 +105,8 @@ df_order_reviews = pd.merge(df_order_reviews, df_category_name, how='left', on='
 #create a copy of the dataframe to clean 
 df = df_order_reviews
 
+#create another copy of the dataframe to clean
+df_copy_reviews = df_order_reviews
 
 # In[17]:
 
@@ -332,8 +334,9 @@ df.columns
 # Correlation Matrix: Calculate correlations between different columns to understand relationships.
 # Correlation with Review Score: Identify columns with strong correlations to the review_score.
 
-# In[36]:
-
+#one-hot encode for the copies i make after 
+df = pd.get_dummies(df, columns=['payment_type','order_status','product_category_name_english',
+                                                             'seller_state'])
 
 # Calculate correlation with Review Score
 correlation_with_review_score = df.corr()['review_score'].sort_values(ascending=False)
@@ -391,7 +394,8 @@ print(top_10_correlations)
 # In[39]:
 
 
-pip install mlxtend
+!pip install mlxtend
+
 
 
 # In[40]:
@@ -409,10 +413,6 @@ from mlxtend.frequent_patterns import association_rules
 
 # In[42]:
 
-
-#one-hot encode for the copies i make after 
-df = pd.get_dummies(df, columns=['payment_type','order_status','product_category_name_english',
-                                                             'seller_state'])
 
 
 # In[43]:
@@ -513,7 +513,7 @@ df.to_csv('test clean.csv')
 
 
 # Apply Apriori algorithm to find frequent itemsets
-frequent_itemsets = apriori(df, min_support=0.01, use_colnames=True)
+frequent_itemsets = apriori(df, min_support=0.05, use_colnames=True)
 
 
 # Support: This measures how frequently an itemset appears in the dataset. min_support is the minimum threshold set for the support value. For example, min_support=0.01 means that an itemset must appear in at least 1% of the transactions.
@@ -550,7 +550,7 @@ review_score_rules = review_score_rules[review_score_rules['consequents'].apply(
 # In[ ]:
 
 
-review_score_rules = review_score_rules[review_score_rules['antecedents'].apply(lambda x: x == frozenset({'product_category_name_english_bed_bath_table'}))]
+#review_score_rules = review_score_rules[review_score_rules['antecedents'].apply(lambda x: x == frozenset({'product_category_name_english_bed_bath_table'}))]
 
 
 # In[ ]:
@@ -573,6 +573,7 @@ review_score_rules.to_csv('test.csv')
 
 # In[ ]:
 
+!pip install networkx
 
 import networkx as nx
 import matplotlib.pyplot as plt
@@ -741,7 +742,7 @@ review_score_rules = review_score_rules[review_score_rules['consequents'].apply(
 # In[ ]:
 
 
-review_score_rules = review_score_rules[review_score_rules['antecedents'].apply(lambda x: x == frozenset({'product_category_name_english_bed_bath_table'}))]
+#review_score_rules = review_score_rules[review_score_rules['antecedents'].apply(lambda x: x == frozenset({'product_category_name_english_bed_bath_table'}))]
 
 
 # In[ ]:
@@ -921,7 +922,7 @@ review_score_rules = review_score_rules[review_score_rules['consequents'].apply(
 # In[ ]:
 
 
-review_score_rules = review_score_rules[review_score_rules['antecedents'].apply(lambda x: x == frozenset({'product_category_name_english_bed_bath_table'}))]
+
 
 
 # In[ ]:
@@ -984,9 +985,14 @@ plt.show()
 
 # Sentiment Analysis (Brendan)
 
+#get a dataframe of furniture reviews from uncleaned data
+
+
 # # Report Preparation (TBD, will divide later)
 
 # Once we are dont this we can go begin report preperation
+df_copy_reviews.head()
+df_copy_reviews 
 
 # In[ ]:
 
