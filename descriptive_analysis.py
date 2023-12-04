@@ -181,4 +181,32 @@ plt.figure(figsize=(8, 6))
 sns.heatmap(correlation_matrix, annot=True, cmap='coolwarm', fmt=".2f", linewidths=.5)
 plt.title('Correlation Matrix: Price, Review Score, and Product Photos Quantity')
 plt.show()
+
+# %%
+
+# Lets count how many sellers there are
+
+# Grab the seller id column and count how many unique ids there are
+sellers = df_sellers['seller_id'].nunique()
+print('The amount of unique sellers is:', sellers)
+
+# %%
+
+# Which cities have the most sellers?
+
+# We have to merge the sellers and geolocation datasets using the zip code prefix
+merged_df = pd.merge(df_sellers, df_geolocation, left_on='seller_zip_code_prefix', right_on='geolocation_zip_code_prefix', how='left')
+
+# Lets assign the top ten cities 
+seller_counts_by_city = merged_df['geolocation_city'].value_counts().head(10)
+
+# We can plot the cities to better visualize the data
+plt.figure(figsize=(12, 6))
+sns.barplot(x=seller_counts_by_city.index, y=seller_counts_by_city.values, hue=seller_counts_by_city.index, palette='viridis', legend=False)
+plt.title('Top 10 Cities by Number of Sellers')
+plt.xlabel('City')
+plt.ylabel('Number of Sellers')
+plt.xticks(rotation=45)
+plt.show()
+
 # %%
