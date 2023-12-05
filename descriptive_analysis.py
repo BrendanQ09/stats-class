@@ -55,6 +55,33 @@ plt.show()
 
 # %%
 
+# Lets count how many sellers there are
+
+# Grab the seller id column and count how many unique ids there are
+sellers = df_sellers['seller_id'].nunique()
+print('The amount of unique sellers is:', sellers)
+
+#%%
+
+# Which cities have the most sellers?
+
+# We have to merge the sellers and geolocation datasets using the zip code prefix
+merged_df = pd.merge(df_sellers, df_geolocation, left_on='seller_zip_code_prefix', right_on='geolocation_zip_code_prefix', how='left')
+
+# Lets assign the top ten cities 
+seller_counts_by_city = merged_df['geolocation_city'].value_counts().head(10)
+
+# We can plot the cities to better visualize the data
+plt.figure(figsize=(12, 6))
+sns.barplot(x=seller_counts_by_city.index, y=seller_counts_by_city.values, hue=seller_counts_by_city.index, palette='viridis', legend=False)
+plt.title('Top 10 Cities by Number of Sellers')
+plt.xlabel('City')
+plt.ylabel('Number of Sellers')
+plt.xticks(rotation=45)
+plt.show()
+
+# %%
+
 # Lets check the status of the orders in the orders dataset
 
 # Grab the order_status column and filter by their order_id. Check the number of unique values, filter them by descending value and display them
@@ -164,8 +191,7 @@ plt.show()
 
 # %%
 
-
-# Lets see if there is a correlation between price, ratings, and the amount of photos included in the products.
+# Lets see if there is a correlation between price, ratings, difference in delivery time, and the amount of photos included in the products.
 
 # First we'll need to merge the order reviews and order items datasets.
 merged_df_order = pd.merge(df_order_reviews[['order_id', 'review_score']], df_order_items[['order_id', 'price', 'product_id']], on='order_id')
@@ -173,40 +199,31 @@ merged_df_order = pd.merge(df_order_reviews[['order_id', 'review_score']], df_or
 # Now we'll merge the products dataset into the previous merged dataset.
 merged_df = pd.merge(merged_df_order, df_products[['product_id', 'product_photos_qty']], on='product_id')
 
+# We'll also need to convert the dates to datetime objects
+df_orders['order_delivered_customer_date'] = pd.to_datetime(df_orders['order_delivered_customer_date'])
+df_orders['order_estimated_delivery_date'] = pd.to_datetime(df_orders['order_estimated_delivery_date'])
+
+# Then we can calculate the difference
+df_orders['delivery_time_difference'] = df_orders['order_delivered_customer_date'] - df_orders['order_estimated_delivery_date']
+
+# We can merge the time difference
+merged_df = pd.merge(merged_df, df_orders[['order_id', 'delivery_time_difference']], on='order_id')
+
 # Create a correlation matrix to compare the columns
-correlation_matrix = merged_df[['price', 'review_score', 'product_photos_qty']].corr()
+correlation_matrix = merged_df[['price', 'review_score', 'product_photos_qty', 'delivery_time_difference']].corr()
 
 # Create a heatmap for the correlation matrix
-plt.figure(figsize=(8, 6))
+plt.figure(figsize=(10, 8))
 sns.heatmap(correlation_matrix, annot=True, cmap='coolwarm', fmt=".2f", linewidths=.5)
-plt.title('Correlation Matrix: Price, Review Score, and Product Photos Quantity')
+plt.title('Correlation Matrix: Price, Review Score, Product Photos Quantity, and Delivery Time Difference')
 plt.show()
+
 
 # %%
 
-# Lets count how many sellers there are
 
-# Grab the seller id column and count how many unique ids there are
-sellers = df_sellers['seller_id'].nunique()
-print('The amount of unique sellers is:', sellers)
 
 # %%
 
-# Which cities have the most sellers?
-
-# We have to merge the sellers and geolocation datasets using the zip code prefix
-merged_df = pd.merge(df_sellers, df_geolocation, left_on='seller_zip_code_prefix', right_on='geolocation_zip_code_prefix', how='left')
-
-# Lets assign the top ten cities 
-seller_counts_by_city = merged_df['geolocation_city'].value_counts().head(10)
-
-# We can plot the cities to better visualize the data
-plt.figure(figsize=(12, 6))
-sns.barplot(x=seller_counts_by_city.index, y=seller_counts_by_city.values, hue=seller_counts_by_city.index, palette='viridis', legend=False)
-plt.title('Top 10 Cities by Number of Sellers')
-plt.xlabel('City')
-plt.ylabel('Number of Sellers')
-plt.xticks(rotation=45)
-plt.show()
 
 # %%
